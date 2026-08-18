@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Session;
 use App\Http\Helpers\LimitCheckerHelper;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Helpers\ThemeDemoHelper;
 
 class BasicController extends Controller
 {
@@ -256,6 +257,56 @@ class BasicController extends Controller
 
 
         $request->session()->flash('success', 'Theme updated successfully!');
+        return 'success';
+    }
+
+    public function importThemeStyle(Request $request)
+    {
+        $rule = [
+            'theme' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rule);
+
+        if ($validator->fails()) {
+            return Response::json([
+                'errors' => $validator->getMessageBag()->toArray()
+            ], 400);
+        }
+
+        $userId = Auth::guard('web')->user()->id;
+        $defaultLang = Language::where('user_id', $userId)->where('is_default', 1)->first() 
+            ?? Language::where('user_id', $userId)->first();
+        $langId = $defaultLang ? $defaultLang->id : null;
+
+        ThemeDemoHelper::importThemeStyleData($userId, $langId, $request->theme);
+
+        $request->session()->flash('success', 'Themes demo data imported successfully!');
+        return 'success';
+    }
+
+    public function importProductCategories(Request $request)
+    {
+        $rule = [
+            'theme' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rule);
+
+        if ($validator->fails()) {
+            return Response::json([
+                'errors' => $validator->getMessageBag()->toArray()
+            ], 400);
+        }
+
+        $userId = Auth::guard('web')->user()->id;
+        $defaultLang = Language::where('user_id', $userId)->where('is_default', 1)->first() 
+            ?? Language::where('user_id', $userId)->first();
+        $langId = $defaultLang ? $defaultLang->id : null;
+
+        ThemeDemoHelper::importProductCategoriesData($userId, $langId, $request->theme);
+
+        $request->session()->flash('success', 'Product categories demo data imported successfully!');
         return 'success';
     }
 

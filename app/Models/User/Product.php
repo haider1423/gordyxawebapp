@@ -20,7 +20,8 @@ class Product extends Model
         'is_feature',
         'addon_keywords',
         'product_id',
-        'indx'
+        'indx',
+        'is_demo'
     ];
     public function information()
     {

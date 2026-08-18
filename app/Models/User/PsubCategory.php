@@ -18,7 +18,8 @@ class PsubCategory extends Model
         'category_id',
         'status',
         'slug',
-        'indx'
+        'indx',
+        'is_demo'
     ];
 
 

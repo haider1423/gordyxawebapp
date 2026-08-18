@@ -36,7 +36,7 @@
                 </div>
                 <div class="card-body pt-5 pb-5">
                     <div class="row">
-                        <div class="col-lg-6 offset-lg-3">
+                        <div class="col-lg-8 offset-lg-2">
                             <form id="ajaxForm" action="{{ route('user.theme.update') }}" method="post">
                                 @csrf
 
@@ -173,10 +173,42 @@
 
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-12 text-center">
-                            <button type="submit" id="submitBtn" class="btn btn-success">
+                        <div class="col-12 text-center mb-4">
+                            <button type="submit" id="submitBtn" class="btn btn-success px-4 py-2">
                                 {{ __('Update') }}
                             </button>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row pt-3">
+                        <!-- Button 1: Theme Styles Demo Data -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light border p-3 h-100 shadow-none">
+                                <p class="text-muted mb-3 font-weight-bold">
+                                    {{ __('Click on this button to import themes demo data.') }}
+                                </p>
+                                <div class="mt-auto">
+                                    <button type="button" id="importThemeStyleBtn" class="btn btn-primary btn-block">
+                                        <i class="fas fa-file-import mr-1"></i> {{ __('Import') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Button 2: Product Categories Demo Data -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light border p-3 h-100 shadow-none">
+                                <p class="text-muted mb-3 font-weight-bold">
+                                    {{ __('Click on this button to import product categories demo data.') }}
+                                </p>
+                                <div class="mt-auto">
+                                    <button type="button" id="importProductCategoriesBtn" class="btn btn-info btn-block">
+                                        <i class="fas fa-boxes mr-1"></i> {{ __('Import') }}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -187,8 +219,6 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
-
-
 
             function themeExtrafeature() {
                 const selectedTheme = $('input[name="theme"]:checked').val();
@@ -208,7 +238,103 @@
                 themeExtrafeature();
             });
 
+            // Button 1: Import Theme Styles Demo Data
+            $('#importThemeStyleBtn').on('click', function(e) {
+                e.preventDefault();
+                const selectedTheme = $('input[name="theme"]:checked').val();
+                if (!selectedTheme) {
+                    bootnotify("Please select a theme first", "Warning", "warning");
+                    return;
+                }
 
+                swal({
+                    title: "{{ __('Are you sure?') }}",
+                    text: "{{ __('This will import the demo style, banners, hero text, and settings for the selected theme.') }}",
+                    type: 'warning',
+                    buttons: {
+                        cancel: {
+                            visible: true,
+                            text: "{{ __('Cancel') }}",
+                            className: 'btn btn-danger'
+                        },
+                        confirm: {
+                            text: "{{ __('Yes, Import It') }}",
+                            className: 'btn btn-success'
+                        }
+                    }
+                }).then((willImport) => {
+                    if (willImport) {
+                        const btn = $('#importThemeStyleBtn');
+                        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> {{ __("Importing...") }}');
+
+                        $.ajax({
+                            url: "{{ route('user.theme.import_style') }}",
+                            type: 'POST',
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                theme: selectedTheme
+                            },
+                            success: function(response) {
+                                btn.prop('disabled', false).html('<i class="fas fa-file-import mr-1"></i> {{ __("Import") }}');
+                                location.reload();
+                            },
+                            error: function(err) {
+                                btn.prop('disabled', false).html('<i class="fas fa-file-import mr-1"></i> {{ __("Import") }}');
+                                bootnotify("Something went wrong", "Error", "danger");
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Button 2: Import Product Categories Demo Data
+            $('#importProductCategoriesBtn').on('click', function(e) {
+                e.preventDefault();
+                const selectedTheme = $('input[name="theme"]:checked').val();
+                if (!selectedTheme) {
+                    bootnotify("Please select a theme first", "Warning", "warning");
+                    return;
+                }
+
+                swal({
+                    title: "{{ __('Are you sure?') }}",
+                    text: "{{ __('This will import demo product categories and items for the selected theme while preserving your custom created products.') }}",
+                    type: 'warning',
+                    buttons: {
+                        cancel: {
+                            visible: true,
+                            text: "{{ __('Cancel') }}",
+                            className: 'btn btn-danger'
+                        },
+                        confirm: {
+                            text: "{{ __('Yes, Import It') }}",
+                            className: 'btn btn-info'
+                        }
+                    }
+                }).then((willImport) => {
+                    if (willImport) {
+                        const btn = $('#importProductCategoriesBtn');
+                        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> {{ __("Importing...") }}');
+
+                        $.ajax({
+                            url: "{{ route('user.theme.import_products') }}",
+                            type: 'POST',
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                theme: selectedTheme
+                            },
+                            success: function(response) {
+                                btn.prop('disabled', false).html('<i class="fas fa-boxes mr-1"></i> {{ __("Import") }}');
+                                location.reload();
+                            },
+                            error: function(err) {
+                                btn.prop('disabled', false).html('<i class="fas fa-boxes mr-1"></i> {{ __("Import") }}');
+                                bootnotify("Something went wrong", "Error", "danger");
+                            }
+                        });
+                    }
+                });
+            });
 
         });
     </script>

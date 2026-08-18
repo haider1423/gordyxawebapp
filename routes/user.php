@@ -406,6 +406,8 @@ Route::middleware(['banStaff', 'Demo'])->group(function () {
 
         Route::get('/themes', [BasicController::class, 'themes'])->name('user.themes');
         Route::post('/themes/update', [BasicController::class, 'updateTheme'])->name('user.theme.update');
+        Route::post('/themes/import-style', [BasicController::class, 'importThemeStyle'])->name('user.theme.import_style');
+        Route::post('/themes/import-products', [BasicController::class, 'importProductCategories'])->name('user.theme.import_products');
     });
 
     Route::group(['middleware' => 'checkAdminHasPermission:Drag & Drop Menu Builder'], function () {

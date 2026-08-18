@@ -15,7 +15,8 @@ class Pcategory extends Model
         'image',
         'is_feature',
         'tax',
-        'indx'
+        'indx',
+        'is_demo'
     ];
 
     public function productInformation()
