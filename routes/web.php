@@ -380,3 +380,8 @@ Route::group(['domain' => $domain, 'prefix' => $prefix, 'middleware' => ['userMa
     Route::post('/push/store', [PushController::class, 'store']);
     Route::get('/offline', [PushController::class, 'offline']);
 });
+
+Route::get('/run-migrations', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return 'Migrations ran successfully! Output: ' . \Illuminate\Support\Facades\Artisan::output();
+});
