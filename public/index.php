@@ -15,54 +15,66 @@ define('LARAVEL_START', microtime(true));
 |--------------------------------------------------------------------------
 |
 | Composer provides a convenient, automatically generated class loader for
-| our application. We just need to utilize it! We'll simply require it
-| into the script here so that we don't have to worry about manual
-| loading any of our classes later on. It feels great to relax.
-|
-*/
-
-require __DIR__.'/../vendor/autoload.php';
-
-// Auto-fix server caching and missing directories on deployment
 $cacheConfigPath = __DIR__.'/../bootstrap/cache/config.php';
+$cacheRoutesPath = __DIR__.'/../bootstrap/cache/routes-v7.php';
+
 if (file_exists($cacheConfigPath)) {
     @unlink($cacheConfigPath);
 }
+if (file_exists($cacheRoutesPath)) {
+    @unlink($cacheRoutesPath);
+}
+
 $viewsPath = __DIR__.'/../storage/framework/views';
 if (!is_dir($viewsPath)) {
     @mkdir($viewsPath, 0775, true);
 }
+
+define('LARAVEL_START', microtime(true));
+
 /*
 |--------------------------------------------------------------------------
-| Turn On The Lights
+| Check If The Application Is Under Maintenance
 |--------------------------------------------------------------------------
-|
-| We need to illuminate PHP development, so let us turn on the lights.
-| This bootstraps the framework and gets it ready for use, then it
-| will load up this application so that we can run it and send
-| the responses back to the browser and delight our users.
-|
 */
 
-$app = require_once __DIR__.'/../bootstrap/app.php';
+if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Register The Auto Loader
+|--------------------------------------------------------------------------
+*/
+
+require __DIR__.'/../vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
 | Run The Application
 |--------------------------------------------------------------------------
-|
-| Once we have the application, we can handle the incoming request
-| through the kernel, and send the associated response back to
-| the client's browser allowing them to enjoy the creative
-| and wonderful application we have prepared for them.
-|
 */
+
+$app = require_once __DIR__.'/../bootstrap/app.php';
 
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
 $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
+
+// --- AUTO MIGRATE SCRIPT ---
+if ($request->is('auto-migrate')) {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        echo "Migrations ran successfully!<br>Output: " . \Illuminate\Support\Facades\Artisan::output();
+    } catch (\Exception $e) {
+        echo "Migration failed: " . $e->getMessage();
+    }
+    exit;
+}
+// ---------------------------
 
 $response->send();
 
