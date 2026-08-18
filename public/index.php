@@ -74,6 +74,18 @@ if ($request->is('auto-migrate')) {
     }
     exit;
 }
+if ($request->is('show-logs')) {
+    $logFile = __DIR__.'/../storage/logs/laravel.log';
+    if (file_exists($logFile)) {
+        $logs = file_get_contents($logFile);
+        $logs = explode("\n", $logs);
+        $logs = array_slice($logs, -150);
+        echo "<pre>" . implode("\n", $logs) . "</pre>";
+    } else {
+        echo "No log file found.";
+    }
+    exit;
+}
 // ---------------------------
 
 $response->send();
