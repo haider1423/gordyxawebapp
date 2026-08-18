@@ -23,6 +23,15 @@ define('LARAVEL_START', microtime(true));
 
 require __DIR__.'/../vendor/autoload.php';
 
+// Auto-fix server caching and missing directories on deployment
+$cacheConfigPath = __DIR__.'/../bootstrap/cache/config.php';
+if (file_exists($cacheConfigPath)) {
+    @unlink($cacheConfigPath);
+}
+$viewsPath = __DIR__.'/../storage/framework/views';
+if (!is_dir($viewsPath)) {
+    @mkdir($viewsPath, 0775, true);
+}
 /*
 |--------------------------------------------------------------------------
 | Turn On The Lights
